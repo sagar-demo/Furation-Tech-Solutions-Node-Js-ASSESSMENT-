@@ -1,0 +1,80 @@
+const express = require('express');
+const axios = require('axios');
+
+const app = express();
+const PORT = 3000;
+
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// GET /products - Get all products
+app.get('/products', async (req, res) => {
+  try {
+    const response = await axios.get('https://dummyjson.com/products');
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /products/:id - Get a specific product by ID
+app.get('/products/:id', async (req, res) => {
+  const productId = req.params.id;
+  try {
+    const response = await axios.get(`https://dummyjson.com/products/${productId}`);
+    res.json(response.data);
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      res.status(404).json({ error: 'Product not found' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
+// POST /products - Create a new product
+app.post('/products', async (req, res) => {
+  const productData = req.body;
+  try {
+    const response = await axios.post('https://dummyjson.com/products', productData);
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /products/:id - Update a specific product by ID
+app.put('/products/:id', async (req, res) => {
+  const productId = req.params.id;
+  const productData = req.body;
+  try {
+    const response = await axios.put(`https://dummyjson.com/products/${productId}`, productData);
+    res.json(response.data);
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      res.status(404).json({ error: 'Product not found' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
+// DELETE /products/:id - Delete a specific product by ID
+app.delete('/products/:id', async (req, res) => {
+  const productId = req.params.id;
+  try {
+    const response = await axios.delete(`https://dummyjson.com/products/${productId}`);
+    res.json(response.data);
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      res.status(404).json({ error: 'Product not found' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
